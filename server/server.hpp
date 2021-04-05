@@ -26,6 +26,7 @@
 class Server 
 {
 public:
+    Server();
     void read_config_file(std::string config_file_path);
     void start();
     void* connect(void* temp_fd);

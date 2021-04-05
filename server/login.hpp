@@ -8,6 +8,7 @@
 class Login
 {
 public:
+    Login();
     void find_username(std::vector<User> users,std::string username);
     bool login(std::string pass);
 private:

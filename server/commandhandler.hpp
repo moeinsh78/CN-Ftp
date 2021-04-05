@@ -11,6 +11,7 @@
 class CommandHandler
 {
 public:
+    CommandHandler();
     void command_parser(std::string input);
     void handle(std::vector<User> users);
 private:

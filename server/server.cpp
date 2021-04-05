@@ -3,6 +3,9 @@
 using namespace std;
 using json = nlohmann::json;
 
+Server::Server()
+{
+}
 
 void Server::read_config_file(std::string config_file_path) 
 {
@@ -11,7 +14,7 @@ void Server::read_config_file(std::string config_file_path)
     file >> j;
     for (auto& user: j["users"])
     {
-        User new_user = new User(
+        User new_user = User(
             user["user"].get<string>(),
             user["password"].get<string>(),
             stoi(user["size"].get<string>()),
@@ -32,9 +35,9 @@ void* Server::connect(void* temp_fd)
     int len;
     while(len = recv(fd, buf, sizeof(buf), 0)){
             command_handler.command_parser(string(buf));
-            command_handler.handle(std::vector<User> users);
+            this->command_handler.handle(this->users);
     }
-        close(fd);
+    close(fd);
     return NULL;
 }
 

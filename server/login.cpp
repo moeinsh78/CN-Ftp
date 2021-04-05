@@ -2,6 +2,10 @@
 
 using namespace std;
 
+Login::Login()
+{
+}
+
 void Login::find_username(std::vector<User> users,std::string username){
     logged_in = false;
     user_enter = false;

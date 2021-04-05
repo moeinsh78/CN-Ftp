@@ -2,6 +2,10 @@
 
 using namespace std;
 
+CommandHandler::CommandHandler()
+{
+}
+
 void CommandHandler::command_parser(string str)
 {
     args.clear();
