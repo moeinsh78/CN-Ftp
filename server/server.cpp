@@ -1,50 +1,79 @@
 #include "server.hpp"
 
 using namespace std;
+using json = nlohmann::json;
 
-void Server::read_config_file(std::string config_file_path) {
 
-    ifstream config_file(config_file_path, ifstream::binary);
-    config_file >> config;
-
-    cout << people; //This will print the entire json object.
-
-    //The following lines will let you access the indexed objects.
-    cout<<people["Anna"]; //Prints the value for "Anna"
-    cout<<people["ben"]; //Prints the value for "Ben"
-    cout<<people["Anna"]["profession"]; //Prints the value corresponding to "profession" in the json for "Anna"
-
-    cout<<people["profession"]; //NULL! There is no element with key "profession". Hence a new empty element will be created.
+void Server::read_config_file(std::string config_file_path) 
+{
+    ifstream file(config_file_path);
+    json j;
+    file >> j;
+    for (auto& user: j["users"])
+    {
+        User new_user = new User(
+            user["user"].get<string>(),
+            user["password"].get<string>(),
+            stoi(user["size"].get<string>()),
+            user["admin"].get<string>());
+        users.push_back(new_user);
+        new_user.get_attr();
+    }
+    for (auto& system_file: j["files"])
+        system_files.push_back(system_file.get<string>());
+    
 }
 
-void Server::start() {
-    struct sockaddr_in sin;
+void* Server::connect(void* temp_fd)
+{
+    int fd = *(int*) temp_fd;
+
     char buf[MAX_LINE];
     int len;
-    int sock, new_sock;
+    while(len = recv(fd, buf, sizeof(buf), 0)){
+            command_handler.command_parser(string(buf));
+            command_handler.handle(std::vector<User> users);
+    }
+        close(fd);
+    return NULL;
+}
+
+void Server::start() 
+{
+    struct sockaddr_in sin;
+    int fd, new_fd;
+    int len;
+    int thread_number = 0;
+    vector<thread> threads;
 
     bzero((char *)&sin, sizeof(sin));
     sin.sin_family = AF_INET;
     sin.sin_addr.s_addr = inet_addr("0.0.0.0");
     sin.sin_port = htons(SERVER_PORT);
 
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+    if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("Socket creation Error.");
         exit(1);
     }
-    if ((bind(sock, (struct sockaddr *)&sin, sizeof(sin))) < 0) {
+    if ((bind(fd, (struct sockaddr *)&sin, sizeof(sin))) < 0) {
         perror("Binding Error.");
         exit(1);
     }
-    listen(sock, MAX_PENDING);
+
+    listen(fd, MAX_PENDING);
 
     while(1) {
-        if ((new_sock = accept(sock, (struct sockaddr*)&sin, (socklen_t*)&len)) < 0) {
+        if ((new_fd = accept(fd, (struct sockaddr*)&sin, (socklen_t*)&len)) < 0) {
             perror("Unacceptable connection Error.");
             exit(1);
         }
-        while(len = recv(new_sock, buf, sizeof(buf), 0))
-            fputs(buf, stdout);
-        close(new_sock);
+        thread new_thread(&Server::connect, this,(void*)&new_fd);
+        threads.push_back(move(new_thread));
+        thread_number++;
+    }
+    for (int i = 0; i < threads.size();i++)
+    {
+        if (threads[i].joinable())
+            threads[i].join();
     }
 }
