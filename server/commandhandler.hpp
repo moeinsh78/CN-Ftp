@@ -4,6 +4,8 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <fstream>
+
 
 #include "user.hpp"
 #include "login.hpp"

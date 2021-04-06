@@ -39,6 +39,8 @@ void Client::start()
         buf[MAX_LINE-1] = '\0';
         len = strlen(buf) + 1;
         send(s, buf, len, 0);
+        recv(s, buf, len, 0);
+        cout << buf << endl;
     }   
 
 }

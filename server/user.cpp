@@ -16,13 +16,7 @@ User::User(std::string username,
              is_admin(is_admin == "true")
 {
 }
-void User::get_attr()
-{
-  cout << "Username:\n" << username << endl;
-  cout << "Password:\n" << password << endl;
-  cout << "remaining_download_size:\n" << remaining_download_size << endl;
-  cout << "admin? \n" << is_admin << endl;
-}
+
 std::string User::get_username()
 {
   return username;

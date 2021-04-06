@@ -20,7 +20,6 @@ void Server::read_config_file(std::string config_file_path)
             stoi(user["size"].get<string>()),
             user["admin"].get<string>());
         users.push_back(new_user);
-        new_user.get_attr();
     }
     for (auto& system_file: j["files"])
         system_files.push_back(system_file.get<string>());
@@ -39,10 +38,8 @@ void* Server::connect(void* temp_fd)
                 command_handler.handle(this->users);
             } catch (string excep)
             {
-                cerr << excep <<endl;
+                send(fd, excep.c_str(), sizeof(excep), 0);
             }
-            
-        
     }
     close(fd);
     return NULL;

@@ -22,6 +22,7 @@ void CommandHandler::handle(std::vector<User> users)
 {
     try
     {
+        remove("temp.txt");
         if (cmd == "user")
         {
             login.find_username(users,args[0]);
@@ -38,7 +39,14 @@ void CommandHandler::handle(std::vector<User> users)
         
         if (cmd == "pwd")
         {
-            
+            system("pwd >> temp.txt");
+            ifstream infile("temp.txt");
+            string line;
+            string str;
+            str = "257: ";
+            getline(infile, line);
+            str += line;
+            throw string(str);
         }
         else if (cmd == "mkd")
         {
@@ -50,6 +58,18 @@ void CommandHandler::handle(std::vector<User> users)
         }
         else if (cmd == "ls")
         {
+            system("ls >> temp.txt");
+            ifstream infile("temp.txt");
+            string line;
+            getline(infile, line);
+            string str;
+            str = line.c_str();
+            while(getline(infile, line))
+            {
+                str += " ";
+                str += line;
+            }
+            throw string(str);
             
         }
         else if (cmd == "cwd")

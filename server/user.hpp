@@ -8,7 +8,6 @@ class User {
 public:
     User();
     User(std::string username, std::string password, int remaining_download_size, std::string is_admin);
-    void get_attr();
     std::string get_username();
     std::string get_password();
 private:
