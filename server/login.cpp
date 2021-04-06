@@ -7,8 +7,8 @@ Login::Login()
 }
 
 void Login::find_username(std::vector<User> users,std::string username){
-    logged_in = false;
-    found_flag = false;
+    if(logged_in)
+        throw string("500: Error");
     for(int i = 0 ; i < users.size() ; i++){
         if(username.compare(users[i].get_username()) == 0){
             user = users[i];
@@ -17,21 +17,30 @@ void Login::find_username(std::vector<User> users,std::string username){
         }
     }
     if(found_flag)
-        cout << "331: User name okay,need password."<<endl;
+        throw string("331: User name okay,need password.");
+    
     else 
-        cout << "430: Invalid username or password"<<endl;
+        throw string("430: Invalid username or password");
 }
-
 bool Login::login(std::string pass){
+    if(logged_in){
+        throw string("500: Error");
+    }
     if(!found_flag){
-        cout << "503: Bad sequence of commands" <<endl;
-        return false;
+        throw string("503: Bad sequence of commands");
     }
     if(pass.compare(user.get_password()) == 0){
         logged_in = true;
-        cout << "230: User logged in, proceed. Logged out if appropriate."<<endl;
+        return true;
     }
     else
-        cout << "430: Invalid username or password"<<endl;
-    return logged_in;
+        throw string("430: Invalid username or password");
+}
+bool Login::quit()
+{
+    if(!logged_in)
+        throw string("500: Error");
+    logged_in = false;
+    found_flag = false;
+    return true;
 }

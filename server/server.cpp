@@ -30,12 +30,19 @@ void Server::read_config_file(std::string config_file_path)
 void* Server::connect(void* temp_fd)
 {
     int fd = *(int*) temp_fd;
-
     char buf[MAX_LINE];
     int len;
     while((len = recv(fd, buf, sizeof(buf), 0))){
             command_handler.command_parser(string(buf));
-            this->command_handler.handle(this->users);
+            try
+            {
+                command_handler.handle(this->users);
+            } catch (string excep)
+            {
+                cerr << excep <<endl;
+            }
+            
+        
     }
     close(fd);
     return NULL;

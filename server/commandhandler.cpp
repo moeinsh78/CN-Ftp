@@ -20,63 +20,71 @@ void CommandHandler::command_parser(string str)
 }
 void CommandHandler::handle(std::vector<User> users)
 {
-    if (cmd == "user")
+    try
     {
-        login.find_username(users,args[0]);
-    }
-    else if (cmd == "pass")
-    {
-        if(login.login(args[0]))
-            logged_in = true;
-    }
-    else if (cmd == "pwd")
-    {
+        if (cmd == "user")
+        {
+            login.find_username(users,args[0]);
+        }
+        else if (cmd == "pass")
+        {
+            if(login.login(args[0])){
+                logged_in = true;
+                throw string("230: User logged in, proceed. Logged out if appropriate.");
+            }
+        }
         if(!logged_in)
-            cout << "332: Need account for login." <<endl;
+            throw string("332: Need account for login.");
+        
+        if (cmd == "pwd")
+        {
+            
+        }
+        else if (cmd == "mkd")
+        {
+            
+        }
+        else if (cmd == "dele")
+        {
+            
+        }
+        else if (cmd == "ls")
+        {
+            
+        }
+        else if (cmd == "cwd")
+        {
+            
+        }
+        else if (cmd == "rename")
+        {
+           
+        }
+        else if (cmd == "retr")
+        {
+            
+        }
+        else if (cmd == "help")
+        {
+            
+        }
+        else if (cmd == "quit")
+        {
+            if(login.quit())
+            {
+                logged_in = false;
+                throw string("221: Successful Quit.");
+            }
+        }
+        else
+        {
+            
+        }
     }
-    else if (cmd == "mkd")
+    catch(string excep)
     {
-        if(!logged_in)
-            cout << "332: Need account for login." <<endl;
+        throw excep;
     }
-    else if (cmd == "dele")
-    {
-        if(!logged_in)
-            cout << "332: Need account for login." <<endl;
-    }
-    else if (cmd == "ls")
-    {
-        if(!logged_in)
-            cout << "332: Need account for login." <<endl;
-    }
-    else if (cmd == "cwd")
-    {
-        if(!logged_in)
-            cout << "332: Need account for login." <<endl;
-    }
-    else if (cmd == "rename")
-    {
-        if(!logged_in)
-            cout << "332: Need account for login." <<endl;
-    }
-    else if (cmd == "retr")
-    {
-        if(!logged_in)
-            cout << "332: Need account for login." <<endl;
-    }
-    else if (cmd == "help")
-    {
-        if(!logged_in)
-            cout << "332: Need account for login." <<endl;
-    }
-    else if (cmd == "quit")
-    {
-        if(!logged_in)
-            cout << "332: Need account for login." <<endl;
-    }
-    else
-    {
-        if(!logged_in)
-            cout << "332: Need account for login." <<endl;
-    }
+    
+    
 }
