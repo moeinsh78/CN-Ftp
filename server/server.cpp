@@ -33,7 +33,7 @@ void* Server::connect(void* temp_fd)
 
     char buf[MAX_LINE];
     int len;
-    while(len = recv(fd, buf, sizeof(buf), 0)){
+    while((len = recv(fd, buf, sizeof(buf), 0))){
             command_handler.command_parser(string(buf));
             this->command_handler.handle(this->users);
     }
@@ -58,7 +58,7 @@ void Server::start()
         perror("Socket creation Error.");
         exit(1);
     }
-    if ((bind(fd, (struct sockaddr *)&sin, sizeof(sin))) < 0) {
+    if ((::bind(fd, (struct sockaddr *)&sin, sizeof(sin))) < 0) {
         perror("Binding Error.");
         exit(1);
     }

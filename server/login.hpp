@@ -14,7 +14,7 @@ public:
 private:
     User user;
     bool logged_in;
-    bool user_enter;
+    bool found_flag;
 };
 
 #endif
