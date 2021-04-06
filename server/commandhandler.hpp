@@ -5,7 +5,8 @@
 #include <sstream>
 #include <vector>
 #include <fstream>
-
+#include<stdio.h>
+#include<unistd.h>
 
 #include "user.hpp"
 #include "login.hpp"

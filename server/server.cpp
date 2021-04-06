@@ -38,7 +38,7 @@ void* Server::connect(void* temp_fd)
                 command_handler.handle(this->users);
             } catch (string excep)
             {
-                send(fd, excep.c_str(), sizeof(excep), 0);
+                send(fd, excep.c_str(), MAX_LINE, 0);
             }
     }
     close(fd);
