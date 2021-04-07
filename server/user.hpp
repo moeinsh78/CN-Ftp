@@ -11,6 +11,7 @@ public:
     std::string get_username();
     std::string get_password();
     int get_remaining_download_size();
+    void reduce_download_size(int dif);
 private:
     std::string username;
     std::string password;

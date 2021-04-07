@@ -3,10 +3,11 @@
 using namespace std;
 
 
-CommandHandler::CommandHandler(string path)
+CommandHandler::CommandHandler(string path,vector<std::string> files)
 {
     server_path = path;
     client_directory = path;
+    system_files = files;
 }
 
 void CommandHandler::command_parser(string str)
@@ -21,7 +22,13 @@ void CommandHandler::command_parser(string str)
         args.push_back(word);
     }
 }
-
+bool CommandHandler::in_system_files(string file)
+{
+    for(int i=0;i<system_files.size();i++)
+        if(file == system_files[i])
+            return true;
+    return false;
+}
 void CommandHandler::record_log(string message)
 {
     string file;
@@ -42,7 +49,7 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
             if(args.size()>0)
                 login.find_username(users,args[0]);
             else
-                throw string("501: Syntax error in parameters or arguments");
+                throw string(SYNTAX_ERROR);
 
         }
         else if (cmd == "pass")
@@ -50,11 +57,11 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
             if(login.login(args[0])){
                 logged_in = true;
                 record_log("User " + login.get_user().get_username() + " logged in successfully");
-                throw string("230: User logged in, proceed. Logged out if appropriate.");
+                throw string(USER_LOGGEDIN);
             }
         }
         if(!logged_in)
-            throw string("332: Need account for login.");
+            throw string(LOGIN_ERROR);
         
         chdir(client_directory.c_str());
         if (cmd == "pwd")
@@ -82,6 +89,9 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
         }
         else if (cmd == "dele")
         {
+            if(in_system_files(args[1]))
+                throw string(FILE_UNAVAILABLE)
+
             if(args[0] == "-f")
             {
                 string command;
@@ -106,7 +116,7 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
                     throw string(str);
                 }
             }
-            throw string("500: Error");
+            throw string(ERROR);
             
         }
         else if (cmd == "ls")
@@ -124,7 +134,7 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
                 str += "\n";
                 str += line;
             }
-            str += "\n226: List transfer done.";
+            str += "\n" + LIST_TRANS;
             remove("temp.txt");
             record_log("User " + login.get_user().get_username() + " requested a list transfer on their working directory");
             throw string(str);
@@ -137,7 +147,7 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
                 if(!chdir(server_path.c_str()))
                 {
                     record_log("User " + login.get_user().get_username() + " changed their working directory to " + server_path);
-                    throw string("250: Successful change."); 
+                    throw string(CHANGE_SUCCESSFUL); 
                 }
             }
             else
@@ -149,31 +159,41 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
                         getline(infile, client_directory);
                         remove("temp.txt");
                         record_log("User " + login.get_user().get_username() + " changed their working directory to " + string(args[0]));
-                        throw string("250: Successful change.");
+                        throw string(CHANGE_SUCCESSFUL);
                     }    
             }
-            throw string("500: Error");
+            throw string(ERROR);
         }
         else if (cmd == "rename")
         {
+            if(in_system_files(args[0]))
+                throw string(FILE_UNAVAILABLE)
+
             if (rename(args[0].c_str(), args[1].c_str()) != 0)
-		        throw string("500: Error");
+		        throw string(ERROR);
 	        else {
 		        record_log("User " + login.get_user().get_username() + " changed file name " + string(args[0]) + " to " + string(args[1]));
-                throw string("250: Successful change.");
+                throw string(CHANGE_SUCCESSFUL);
             }
         }
         else if (cmd == "retr")
         {
+            if(in_system_files(args[0]))
+                throw string(FILE_UNAVAILABLE)
+
             ifstream in_file(args[0], ios::binary);
             in_file.seekg(0, ios::end);
             int file_size = in_file.tellg();
+
             if(file_size > login.get_user().get_remaining_download_size())
-                throw string("425: Can't open data connection");
+                throw string(OPEN_ERROR);
+
             int file_fd = open(args[0].c_str(),O_RDONLY);
             sendfile(data_channel_fd,file_fd,NULL,file_size);
+            login.get_user().reduce_download_size(file_size);
+            
             record_log("User " + login.get_user().get_username() + " downloaded file " + string(args[0]));
-            throw string("226: Successful Download.");
+            throw string(DOWNLOAD_SUCCESSFUL);
         }
         else if (cmd == "help")
         {
@@ -195,7 +215,7 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
             {
                 logged_in = false;
                 record_log("User " + login.get_user().get_username() + " logged out successfully");
-                throw string("221: Successful Quit.");
+                throw string(QUIT_SUCCESSFUL);
             }
         }
         else

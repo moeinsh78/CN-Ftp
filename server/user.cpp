@@ -29,3 +29,7 @@ int User::get_remaining_download_size()
 {
   return remaining_download_size;
 }
+void User::reduce_download_size(int dif)
+{
+  remaining_download_size -= dif;
+}

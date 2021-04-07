@@ -57,7 +57,7 @@ void* Server::connect(void* thread_number)
     int data_channel_fd = sockets_fd_array[thread_id].data_sock_fd;
     char buf[MAX_LINE];
     int len;
-    CommandHandler command_handler(path);
+    CommandHandler command_handler(path,system_files);
     while((len = recv(command_channel_fd, buf, sizeof(buf), 0))){
         command_handler.command_parser(string(buf));
         try
