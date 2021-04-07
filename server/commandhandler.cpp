@@ -30,7 +30,7 @@ void CommandHandler::record_log(string message)
     logfile.close();
 }
 
-void CommandHandler::handle(std::vector<User> users)
+void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
 {
     try
     {
@@ -74,7 +74,7 @@ void CommandHandler::handle(std::vector<User> users)
             system(command.c_str());
             string str;
             str = "257: " + args[0] + " created.";
-            record_log("User " + login.get_logged_username() + " created " + string(args[0]) + "directory");
+            record_log("User " + login.get_logged_username() + " created " + string(args[0]) + " directory");
             throw string(str);
         }
         else if (cmd == "dele")
@@ -162,7 +162,15 @@ void CommandHandler::handle(std::vector<User> users)
         }
         else if (cmd == "retr")
         {
+            ifstream in_file(args[0], ios::binary);
+            in_file.seekg(0, ios::end);
+            int file_size = in_file.tellg();
+            if(file_size > login.get_user().get_remaining_download_size())
+                throw string("425: Can't open data connection");
+            int file_fd = open(args[0].c_str(),O_RDONLY);
+            sendfile(data_channel_fd,file_fd,NULL,file_size);
             record_log("User " + login.get_logged_username() + " downloaded file " + string(args[0]));
+            throw string("226: Successful Download.");
         }
         else if (cmd == "help")
         {

@@ -25,3 +25,7 @@ std::string User::get_password()
 {
   return password;
 }
+int User::get_remaining_download_size()
+{
+  return remaining_download_size;
+}

@@ -16,6 +16,7 @@ public:
     bool quit();
     void record_log(std::string message);
     std::string get_logged_username();
+    User get_user();
 private:
     std::ofstream logfile;
     User user;

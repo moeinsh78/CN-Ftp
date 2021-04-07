@@ -60,7 +60,7 @@ void* Server::connect(void* thread_number)
         command_handler.command_parser(string(buf));
         try
         {
-            command_handler.handle(this->users);
+            command_handler.handle(this->users,data_channel_fd);
         } catch (string excep)
         {
             send(command_channel_fd, excep.c_str(), MAX_LINE, 0);

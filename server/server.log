@@ -1,0 +1,8 @@
+Ftp server started -- Wed Apr  7 21:35:07 2021
+Client connected. It will be handled by thread number 0 -- Wed Apr  7 21:35:14 2021
+User Ali logged in successfully -- Wed Apr  7 21:35:48 2021
+User Ali requested a list transfer on their working directory -- Wed Apr  7 21:35:50 2021
+User Ali requested a list transfer on their working directory -- Wed Apr  7 21:36:52 2021
+User Ali created hellodirectory -- Wed Apr  7 21:37:10 2021
+User Ali asked their current working directory -- Wed Apr  7 21:37:17 2021
+User Ali changed their working directory to .. -- Wed Apr  7 21:37:54 2021

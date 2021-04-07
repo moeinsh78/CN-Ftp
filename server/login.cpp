@@ -59,3 +59,6 @@ string Login::get_logged_username()
 {
     return user.get_username();
 }
+User Login::get_user(){
+    return user;
+}
