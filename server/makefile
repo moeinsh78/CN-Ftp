@@ -1,8 +1,8 @@
 CC := g++ -std=c++11 -pthread
 all: server.out
 
-serve.out: main.o commandhandler.o server.o user.o login.o 
-	$(CC) -o serve.out main.o commandhandler.o server.o user.o login.o
+server.out: main.o commandhandler.o server.o user.o login.o 
+	$(CC) -o server.out main.o commandhandler.o server.o user.o login.o
 
 user.o: user.cpp user.hpp
 	$(CC) -c user.cpp -o user.o

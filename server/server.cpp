@@ -25,8 +25,8 @@ void Server::read_config_file(std::string config_file_path)
     }
     for (auto& system_file: j["files"])
         system_files.push_back(system_file.get<string>());
-    command_channel_port = stoi(j["commandChannelPort"]);
-    data_channel_port = stoi(j["dataChannelPort"])
+    command_channel_port = stoi(j["commandChannelPort"].get<string>());
+    data_channel_port = stoi(j["dataChannelPort"].get<string>());
 }
 
 void* Server::connect(void* temp_fd)
