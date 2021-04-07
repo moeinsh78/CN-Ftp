@@ -5,8 +5,24 @@ using json = nlohmann::json;
 
 string path;
 
+typedef struct 
+{
+    int data_sock_fd;
+    int command_sock_fd;
+} Sockets;
+
+Sockets sockets_fd_array[MAX_PENDING];
+
 Server::Server()
 {
+}
+
+void Server::record_log(string message)
+{
+    logfile.open("server.log", std::ofstream::out | std::ofstream::app);
+    time_t now = time(0);
+    logfile << message <<  " -- " << (char*) ctime(&now);
+    logfile.close();
 }
 
 void Server::read_config_file(std::string config_file_path) 
@@ -28,27 +44,30 @@ void Server::read_config_file(std::string config_file_path)
 
     command_channel_port = j["commandChannelPort"];
     data_channel_port = j["dataChannelPort"];
-    
 }
 
-void* Server::connect(void* temp_fd)
+void* Server::connect(void* thread_number)
 {
-    int data_channel_fd = create_data_channel();
-    int fd = *(int*) temp_fd;
+    int thread_id = (long)thread_number;
+    string log_str = "Client connected. It will be handled by thread number " + to_string(thread_id);
+    record_log(log_str);
+    int command_channel_fd = sockets_fd_array[thread_id].command_sock_fd;
+    int data_channel_fd = sockets_fd_array[thread_id].data_sock_fd;
     char buf[MAX_LINE];
     int len;
     CommandHandler command_handler(path);
-    while((len = recv(fd, buf, sizeof(buf), 0))){
+    while((len = recv(command_channel_fd, buf, sizeof(buf), 0))){
         command_handler.command_parser(string(buf));
         try
         {
             command_handler.handle(this->users);
         } catch (string excep)
         {
-            send(fd, excep.c_str(), MAX_LINE, 0);
+            send(command_channel_fd, excep.c_str(), MAX_LINE, 0);
         }
     }
-    close(fd);
+    close(data_channel_fd);
+    close(command_channel_fd);
     return NULL;
 }
 
@@ -59,33 +78,60 @@ void Server::start()
     getline(infile, path);
     remove("temp.txt");
 
-    struct sockaddr_in sin;
-    int fd, new_fd;
-    int len;
-    int thread_number = 0;
+    struct sockaddr_in data_sin;
+    struct sockaddr_in command_sin;
+    int command_fd, command_new_fd;
+    int data_fd, data_new_fd;
+    int command_len, data_len;
+    long thread_number = 0;
     vector<thread> threads;
-    bzero((char *)&sin, sizeof(sin));
-    sin.sin_family = AF_INET;
-    sin.sin_addr.s_addr = inet_addr("0.0.0.0");
-    sin.sin_port = htons(command_channel_port);
+    
+    bzero((char *)&command_sin, sizeof(command_sin));
+    command_sin.sin_family = AF_INET;
+    command_sin.sin_addr.s_addr = inet_addr("127.0.0.1");
+    command_sin.sin_port = htons(command_channel_port);
 
-    if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        perror("Socket creation Error.");
+    bzero((char *)&data_sin, sizeof(data_sin));
+    data_sin.sin_family = AF_INET;
+    data_sin.sin_addr.s_addr = inet_addr("127.0.0.1");
+    data_sin.sin_port = htons(data_channel_port);
+
+    if ((command_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        perror("Command socket creation Error.");
         exit(1);
     }
-    if ((::bind(fd, (struct sockaddr *)&sin, sizeof(sin))) < 0) {
-        perror("Binding Error.");
+    if ((data_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        perror("Data socket creation Error.");
         exit(1);
     }
 
-    listen(fd, MAX_PENDING);
+    if ((::bind(command_fd, (struct sockaddr *)&command_sin, sizeof(command_sin))) < 0) {
+        perror("Command socket port binding Error.");
+        exit(1);
+    }
+    
+    if ((::bind(data_fd, (struct sockaddr *)&data_sin, sizeof(data_sin))) < 0) {
+        perror("Data socket port binding Error.");
+        exit(1);
+    }
+
+    record_log("Ftp server started");
+
+    listen(command_fd, MAX_PENDING);
+    listen(data_fd, MAX_PENDING);
 
     while(1) {
-        if ((new_fd = accept(fd, (struct sockaddr*)&sin, (socklen_t*)&len)) < 0) {
+        if ((command_new_fd = accept(command_fd, (struct sockaddr*)&command_sin, (socklen_t*)&command_len)) < 0) {
             perror("Unacceptable connection Error.");
             exit(1);
         }
-        thread new_thread(&Server::connect, this,(void*)&new_fd);
+        if ((data_new_fd = accept(data_fd, (struct sockaddr*)&data_sin, (socklen_t*)&data_len)) < 0) {
+            perror("Unacceptable connection Error.");
+            exit(1);
+        }
+        sockets_fd_array[thread_number].command_sock_fd = command_new_fd;
+        sockets_fd_array[thread_number].data_sock_fd = data_new_fd;
+        thread new_thread(&Server::connect, this,(void*)thread_number);
         threads.push_back(move(new_thread));
         thread_number++;
     }
@@ -94,33 +140,4 @@ void Server::start()
         if (threads[i].joinable())
             threads[i].join();
     }
-}
-
-int Server::create_data_channel()
-{
-    struct sockaddr_in data_sin;
-    int data_sock_fd, data_sock_new_fd;
-    int len;
-    
-    bzero((char *)&data_sin, sizeof(data_sin));
-    data_sin.sin_family = AF_INET;
-    data_sin.sin_addr.s_addr = inet_addr("0.0.0.0");
-    data_sin.sin_port = htons(data_channel_port);
-
-    if ((data_sock_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        perror("Data socket creation Error.");
-        exit(1);
-    }
-    if ((::bind(data_sock_fd, (struct sockaddr *)&data_sin, sizeof(data_sin))) < 0) {
-        perror("Data socket port binding Error.");
-        exit(1);
-    }
-
-    listen(data_sock_fd, MAX_PENDING);
-
-    if ((data_sock_new_fd = accept(data_sock_fd, (struct sockaddr*)&data_sin, (socklen_t*)&len)) < 0) {
-        perror("Unacceptable connection Error for data channel.");
-        exit(1);
-    }
-    return data_sock_new_fd;
 }

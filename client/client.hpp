@@ -26,7 +26,6 @@ public:
     Client();
     void read_config_file(std::string config_file_path);
     void start();
-    int create_data_channel();
 private:
     int command_channel_port;
     int data_channel_port;

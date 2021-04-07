@@ -70,6 +70,8 @@
         "typeinfo": "cpp",
         "unordered_map": "cpp",
         "valarray": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "*.tcc": "cpp",
+        "memory_resource": "cpp"
     }
 }

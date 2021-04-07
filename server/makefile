@@ -23,3 +23,4 @@ main.o: main.cpp server.hpp
 clean:
 	rm *.o
 	rm server.out
+	rm *.log

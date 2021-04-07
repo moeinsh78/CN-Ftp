@@ -22,10 +22,19 @@ void CommandHandler::command_parser(string str)
     }
 }
 
+void CommandHandler::record_log(string message)
+{
+    logfile.open("server.log", std::ofstream::out | std::ofstream::app);
+    time_t now = time(0);
+    logfile << message <<  " -- " << (char*) ctime(&now);
+    logfile.close();
+}
+
 void CommandHandler::handle(std::vector<User> users)
 {
     try
     {
+        string log_str;
         if (cmd == "user")
         {
             if(args.size()>0)
@@ -55,6 +64,7 @@ void CommandHandler::handle(std::vector<User> users)
             getline(infile, line);
             str += line;
             remove("temp.txt");
+            record_log("User " + login.get_logged_username() + " asked their current working directory");
             throw string(str);
         }
         else if (cmd == "mkd")
@@ -64,6 +74,7 @@ void CommandHandler::handle(std::vector<User> users)
             system(command.c_str());
             string str;
             str = "257: " + args[0] + " created.";
+            record_log("User " + login.get_logged_username() + " created " + string(args[0]) + "directory");
             throw string(str);
         }
         else if (cmd == "dele")
@@ -76,6 +87,7 @@ void CommandHandler::handle(std::vector<User> users)
                 {
                     string str;
                     str = "250: " + args[1] + " deleted.";
+                    record_log("User " + login.get_logged_username() + " deleted " + string(args[1]) + " file");
                     throw string(str);
                 }
             }
@@ -87,6 +99,7 @@ void CommandHandler::handle(std::vector<User> users)
                 {
                     string str;
                     str = "250: " + args[1] + " deleted.";
+                    record_log("User " + login.get_logged_username() + " deleted " + string(args[1]) + " directory");
                     throw string(str);
                 }
             }
@@ -110,6 +123,7 @@ void CommandHandler::handle(std::vector<User> users)
             }
             str += "\n226: List transfer done.";
             remove("temp.txt");
+            record_log("User " + login.get_logged_username() + " requested a list transfer on their working directory");
             throw string(str);
             
         }
@@ -117,10 +131,11 @@ void CommandHandler::handle(std::vector<User> users)
         {
             if(args.size() == 0)
             {
-               if(!chdir(server_path.c_str()))
-               {
-                   throw string("250: Successful change."); 
-               }
+                if(!chdir(server_path.c_str()))
+                {
+                    record_log("User " + login.get_logged_username() + " changed their working directory to " + server_path);
+                    throw string("250: Successful change."); 
+                }
             }
             else
             {
@@ -130,6 +145,7 @@ void CommandHandler::handle(std::vector<User> users)
                         ifstream infile("temp.txt");
                         getline(infile, client_directory);
                         remove("temp.txt");
+                        record_log("User " + login.get_logged_username() + " changed their working directory to " + string(args[0]));
                         throw string("250: Successful change.");
                     }    
             }
@@ -139,12 +155,14 @@ void CommandHandler::handle(std::vector<User> users)
         {
             if (rename(args[0].c_str(), args[1].c_str()) != 0)
 		        throw string("500: Error");
-	        else
-		        throw string("250: Successful change.");
+	        else {
+		        record_log("User " + login.get_logged_username() + " changed file name " + string(args[0]) + " to " + string(args[1]));
+                throw string("250: Successful change.");
+            }
         }
         else if (cmd == "retr")
         {
-            
+            record_log("User " + login.get_logged_username() + " downloaded file " + string(args[0]));
         }
         else if (cmd == "help")
         {
@@ -177,6 +195,4 @@ void CommandHandler::handle(std::vector<User> users)
     {
         throw excep;
     }
-    
-    
 }

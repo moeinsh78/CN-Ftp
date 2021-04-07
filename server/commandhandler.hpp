@@ -19,7 +19,9 @@ public:
     CommandHandler(std::string path);
     void command_parser(std::string input);
     void handle(std::vector<User> users);
+    void record_log(std::string message);
 private:
+    std::ofstream logfile;
     std::string cmd;
     std::vector<std::string> args;
     Login login;

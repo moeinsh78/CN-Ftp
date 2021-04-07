@@ -14,6 +14,7 @@
 #include <fstream>
 #include <sstream>
 #include <cstdlib>
+#include <ctime>
 
 #include "Json.hpp"
 #include "commandhandler.hpp"
@@ -28,10 +29,11 @@ public:
     Server();
     void read_config_file(std::string config_file_path);
     void start();
-    void* connect(void* temp_fd);
-    int create_data_channel();
+    void* connect(void* thread_number);
+    void record_log(std::string message);
 
 private:
+    std::ofstream logfile;
     std::vector<User> users;
     std::vector<std::string> system_files;
     int command_channel_port;
