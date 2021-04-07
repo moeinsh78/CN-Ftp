@@ -25,7 +25,7 @@ void Client::start()
     bzero((char *)&sin, sizeof(sin));
     sin.sin_family = AF_INET;
     sin.sin_addr.s_addr = inet_addr("127.0.0.1");
-    sin.sin_port = htons(SERVER_COMMAND_PORT);
+    sin.sin_port = htons(command_channel_port);
 
     if ((s = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
         perror("simplex-talk: socket");
@@ -59,7 +59,7 @@ int Client::create_data_channel()
     bzero((char *)&data_sin, sizeof(data_sin));
     data_sin.sin_family = AF_INET;
     data_sin.sin_addr.s_addr = inet_addr("127.0.0.1");
-    data_sin.sin_port = htons(SERVER_DATA_PORT);
+    data_sin.sin_port = htons(data_channel_port);
 
     if ((data_sock = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
         perror("simplex-talk: socket");
