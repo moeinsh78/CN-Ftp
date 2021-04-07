@@ -22,9 +22,11 @@ void* Client::handle_incoming_files(void* fd)
     int received_files = 0;
     char buf[MAX_FILE_SIZE];
     while(true) {
+            char buf[MAX_FILE_SIZE];
+
         recv(data_fd, buf, MAX_FILE_SIZE, 0);
         received_files += 1;
-        string file_name = "file" + to_string(received_files);
+        string file_name = "file" + to_string(received_files) + ".txt";
         FILE *f = fopen(file_name.c_str(), "w");
         fwrite(buf , sizeof(char), sizeof(buf) + 1, f);
         fclose(f);
