@@ -12,6 +12,7 @@ public:
     std::string get_password();
     int get_remaining_download_size();
     void reduce_download_size(int dif);
+    bool admin();
 private:
     std::string username;
     std::string password;

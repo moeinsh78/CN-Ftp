@@ -89,7 +89,7 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
         }
         else if (cmd == "dele")
         {
-            if(in_system_files(args[1]))
+            if(in_system_files(args[1]) && !login.user.admin())
                 throw string(FILE_UNAVAILABLE)
 
             if(args[0] == "-f")
@@ -166,7 +166,7 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
         }
         else if (cmd == "rename")
         {
-            if(in_system_files(args[0]))
+            if(in_system_files(args[0]) && !login.user.admin())
                 throw string(FILE_UNAVAILABLE)
 
             if (rename(args[0].c_str(), args[1].c_str()) != 0)
@@ -178,7 +178,7 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
         }
         else if (cmd == "retr")
         {
-            if(in_system_files(args[0]))
+            if(in_system_files(args[0]) && !login.user.admin())
                 throw string(FILE_UNAVAILABLE)
 
             ifstream in_file(args[0], ios::binary);
@@ -191,7 +191,7 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
             int file_fd = open(args[0].c_str(),O_RDONLY);
             sendfile(data_channel_fd,file_fd,NULL,file_size);
             login.get_user().reduce_download_size(file_size);
-            
+
             record_log("User " + login.get_user().get_username() + " downloaded file " + string(args[0]));
             throw string(DOWNLOAD_SUCCESSFUL);
         }

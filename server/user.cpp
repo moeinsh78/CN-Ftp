@@ -33,3 +33,7 @@ void User::reduce_download_size(int dif)
 {
   remaining_download_size -= dif;
 }
+bool User::admin()
+{
+  return is_admin;
+}
