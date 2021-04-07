@@ -1,5 +1,5 @@
 CC := g++ -std=c++11 -pthread
-all: serve.out
+all: server.out
 
 serve.out: main.o commandhandler.o server.o user.o login.o 
 	$(CC) -o serve.out main.o commandhandler.o server.o user.o login.o
@@ -22,4 +22,4 @@ main.o: main.cpp server.hpp
 .PHONY: clean
 clean:
 	rm *.o
-	rm serve.out
+	rm server.out

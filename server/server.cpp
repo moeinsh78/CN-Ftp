@@ -25,7 +25,8 @@ void Server::read_config_file(std::string config_file_path)
     }
     for (auto& system_file: j["files"])
         system_files.push_back(system_file.get<string>());
-    
+    command_channel_port = stoi(j["commandChannelPort"]);
+    data_channel_port = stoi(j["dataChannelPort"])
 }
 
 void* Server::connect(void* temp_fd)
@@ -64,7 +65,7 @@ void Server::start()
     bzero((char *)&sin, sizeof(sin));
     sin.sin_family = AF_INET;
     sin.sin_addr.s_addr = inet_addr("0.0.0.0");
-    sin.sin_port = htons(SERVER_COMMAND_PORT);
+    sin.sin_port = htons(command_channel_port);
 
     if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("Socket creation Error.");
@@ -102,7 +103,7 @@ int Server::create_data_channel()
     bzero((char *)&data_sin, sizeof(data_sin));
     data_sin.sin_family = AF_INET;
     data_sin.sin_addr.s_addr = inet_addr("0.0.0.0");
-    data_sin.sin_port = htons(SERVER_DATA_PORT);
+    data_sin.sin_port = htons(data_channel_port);
 
     if ((data_sock_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("Data socket creation Error.");

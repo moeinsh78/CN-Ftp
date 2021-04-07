@@ -1,10 +1,20 @@
 #include "client.hpp"
 
 using namespace std;
+using json = nlohmann::json;
+
 Client::Client()
 {
 }
 
+void Client::read_config_file(std::string config_file_path) 
+{
+    ifstream file(config_file_path);
+    json j;
+    file >> j;
+    command_channel_port = stoi(j["commandChannelPort"]);
+    data_channel_port = stoi(j["dataChannelPort"])
+}
 void Client::start()
 {
     struct sockaddr_in sin;

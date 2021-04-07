@@ -21,6 +21,7 @@ void CommandHandler::command_parser(string str)
         args.push_back(word);
     }
 }
+
 void CommandHandler::handle(std::vector<User> users)
 {
     try

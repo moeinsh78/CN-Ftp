@@ -1,5 +1,5 @@
 CC := g++ -std=c++11 -pthread
-all: cli.out
+all: client.out
 
 cli.out: main.o client.o 
 	$(CC) -o cli.out main.o client.o 
@@ -13,4 +13,4 @@ main.o: main.cpp client.hpp
 .PHONY: clean
 clean:
 	rm *.o
-	rm cli.out
+	rm client.out

@@ -15,16 +15,21 @@
 #include <sstream>
 #include <cstdlib>
 
-#define SERVER_DATA_PORT 2345
-#define SERVER_COMMAND_PORT 5432
+#include "Json.hpp"
+
 #define MAX_LINE 1024
+
 
 class Client
 {
 public:
     Client();
+    void read_config_file(std::string config_file_path);
     void start();
     int create_data_channel();
+private:
+    int command_channel_port;
+    int data_channel_port;
 };
 
 #endif
