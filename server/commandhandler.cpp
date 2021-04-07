@@ -89,8 +89,8 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
         }
         else if (cmd == "dele")
         {
-            if(in_system_files(args[1]) && !login.user.admin())
-                throw string(FILE_UNAVAILABLE)
+            if(in_system_files(args[1]) && !login.get_user().admin())
+                throw string(FILE_UNAVAILABLE);
 
             if(args[0] == "-f")
             {
@@ -134,7 +134,7 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
                 str += "\n";
                 str += line;
             }
-            str += "\n" + LIST_TRANS;
+            str += "\n" + string(LIST_TRANS);
             remove("temp.txt");
             record_log("User " + login.get_user().get_username() + " requested a list transfer on their working directory");
             throw string(str);
@@ -166,8 +166,8 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
         }
         else if (cmd == "rename")
         {
-            if(in_system_files(args[0]) && !login.user.admin())
-                throw string(FILE_UNAVAILABLE)
+            if(in_system_files(args[0]) && !login.get_user().admin())
+                throw string(FILE_UNAVAILABLE);
 
             if (rename(args[0].c_str(), args[1].c_str()) != 0)
 		        throw string(ERROR);
@@ -178,8 +178,8 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
         }
         else if (cmd == "retr")
         {
-            if(in_system_files(args[0]) && !login.user.admin())
-                throw string(FILE_UNAVAILABLE)
+            if(in_system_files(args[0]) && !login.get_user().admin())
+                throw string(FILE_UNAVAILABLE);
 
             ifstream in_file(args[0], ios::binary);
             in_file.seekg(0, ios::end);
