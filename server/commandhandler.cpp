@@ -148,7 +148,17 @@ void CommandHandler::handle(std::vector<User> users)
         }
         else if (cmd == "help")
         {
-            
+            ifstream infile("help.txt");
+            string line;
+            getline(infile, line);
+            string str;
+            str = line.c_str();
+            while(getline(infile, line))
+            {
+                str += "\n";
+                str += line;
+            }
+            throw string(str);
         }
         else if (cmd == "quit")
         {
