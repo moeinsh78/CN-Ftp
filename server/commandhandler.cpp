@@ -59,6 +59,8 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
                 record_log("User " + login.get_user().get_username() + " logged in successfully");
                 throw string(USER_LOGGEDIN);
             }
+            throw string(SYNTAX_ERROR);
+
         }
         if(!logged_in)
             throw string(LOGIN_ERROR);
@@ -79,6 +81,8 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
         }
         else if (cmd == "mkd")
         {
+            if(args.size() == 0)
+                throw string(SYNTAX_ERROR);
             string command;
             command = "mkdir -p " + string(args[0]);
             system(command.c_str());
@@ -91,6 +95,9 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
         {
             if(in_system_files(args[1]) && !login.get_user().admin())
                 throw string(FILE_UNAVAILABLE);
+            
+            if(args.size() < 2)
+                throw string(SYNTAX_ERROR);
 
             if(args[0] == "-f")
             {
@@ -116,7 +123,7 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
                     throw string(str);
                 }
             }
-            throw string(ERROR);
+            throw string(SYNTAX_ERROR);
             
         }
         else if (cmd == "ls")
@@ -142,10 +149,14 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
         }
         else if (cmd == "cwd")
         {
+            if(args.size() > 1)
+                throw string(SYNTAX_ERROR);
+
             if(args.size() == 0)
             {
                 if(!chdir(server_path.c_str()))
                 {
+                    client_directory = server_path;
                     record_log("User " + login.get_user().get_username() + " changed their working directory to " + server_path);
                     throw string(CHANGE_SUCCESSFUL); 
                 }
@@ -166,6 +177,9 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
         }
         else if (cmd == "rename")
         {
+            if(args.size() != 2)
+                throw string(SYNTAX_ERROR);
+
             if(in_system_files(args[0]) && !login.get_user().admin())
                 throw string(FILE_UNAVAILABLE);
 
@@ -178,6 +192,9 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
         }
         else if (cmd == "retr")
         {
+            if(args.size() != 1)
+                throw string(SYNTAX_ERROR);
+
             if(in_system_files(args[0]) && !login.get_user().admin())
                 throw string(FILE_UNAVAILABLE);
 
