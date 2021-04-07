@@ -5,8 +5,10 @@
 #include <sstream>
 #include <vector>
 #include <fstream>
-#include<stdio.h>
-#include<unistd.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <cstdio>
+#include <iostream>
 
 #include "user.hpp"
 #include "login.hpp"
@@ -14,7 +16,7 @@
 class CommandHandler
 {
 public:
-    CommandHandler();
+    CommandHandler(std::string path);
     void command_parser(std::string input);
     void handle(std::vector<User> users);
 private:
@@ -22,6 +24,8 @@ private:
     std::vector<std::string> args;
     Login login;
     bool logged_in;
+    std::string server_path;
+    std::string client_directory;
 };
 
 #endif

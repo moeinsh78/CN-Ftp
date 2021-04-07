@@ -1,0 +1,16 @@
+This is the command guide for Ftp server
+
+- registeration commands:
+1) user <username>: you should enter your username to be checked. Right after this command, you should enter your password using pass command.
+2) pass <password>: you will be logged in after entering the correct username and password.
+3) quit: you will be logged out of system using this command.
+- the following commands need to be logged in:
+4) pwd: returns the current working directory.
+5) mkd <path>: creates a directory in the entered path.
+6-1) dele -f <filename>: deletes the file named filename.
+6-2) dele -d <dir path>: deletes the entire directory located in the entered path.
+7) cwd <path>: changes the working directory to the entered path. It will be changed to homepage if no path entered. 
+8) ls: lists all the files and folders in the current working directory.
+9) rename <from> <to>: renames the mentioned file.
+10) retr <name>: transfers the file with the entered name, if exists. The file size will be subtracted from remaining download size of the user.
+

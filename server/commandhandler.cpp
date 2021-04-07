@@ -1,11 +1,12 @@
 #include "commandhandler.hpp"
 
 using namespace std;
-//namespace fs = std::filesystem;
 
 
-CommandHandler::CommandHandler()
+CommandHandler::CommandHandler(string path)
 {
+    server_path = path;
+    client_directory = path;
 }
 
 void CommandHandler::command_parser(string str)
@@ -26,7 +27,11 @@ void CommandHandler::handle(std::vector<User> users)
     {
         if (cmd == "user")
         {
-            login.find_username(users,args[0]);
+            if(args.size()>0)
+                login.find_username(users,args[0]);
+            else
+                throw string("501: Syntax error in parameters or arguments");
+
         }
         else if (cmd == "pass")
         {
@@ -38,6 +43,7 @@ void CommandHandler::handle(std::vector<User> users)
         if(!logged_in)
             throw string("332: Need account for login.");
         
+        chdir(client_directory.c_str());
         if (cmd == "pwd")
         {
             system("pwd >> temp.txt");
@@ -96,6 +102,8 @@ void CommandHandler::handle(std::vector<User> users)
             str = line.c_str();
             while(getline(infile, line))
             {
+                if(line == "temp.txt")
+                    continue;
                 str += "\n";
                 str += line;
             }
@@ -106,8 +114,25 @@ void CommandHandler::handle(std::vector<User> users)
         }
         else if (cmd == "cwd")
         {
-            chdir(args[0].c_str());
-            throw string("250: Successful change.");
+            if(args.size() == 0)
+            {
+               if(!chdir(server_path.c_str()))
+               {
+                   throw string("250: Successful change."); 
+               }
+            }
+            else
+            {
+                if(!chdir(client_directory.c_str()))
+                    if(!chdir(args[0].c_str())){
+                        system("pwd >> temp.txt");
+                        ifstream infile("temp.txt");
+                        getline(infile, client_directory);
+                        remove("temp.txt");
+                        throw string("250: Successful change.");
+                    }    
+            }
+            throw string("500: Error");
         }
         else if (cmd == "rename")
         {
