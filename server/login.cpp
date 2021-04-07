@@ -5,15 +5,6 @@ using namespace std;
 Login::Login()
 {
 }
-
-void Login::record_log(string message)
-{
-    logfile.open("server.log", std::ofstream::out | std::ofstream::app);
-    time_t now = time(0);
-    logfile << message <<  " -- " << (char*) ctime(&now);
-    logfile.close();
-}
-
 void Login::find_username(std::vector<User> users,std::string username){
     if(logged_in)
         throw string("500: Error");
@@ -39,7 +30,6 @@ bool Login::login(std::string pass){
     }
     if(pass.compare(user.get_password()) == 0){
         logged_in = true;
-        record_log("User " + user.get_username() + " logged in successfully");
         return true;
     }
     else
@@ -51,14 +41,9 @@ bool Login::quit()
         throw string("500: Error");
     logged_in = false;
     found_flag = false;
-    record_log("User " + user.get_username() + " logged out successfully");
     return true;
 }
 
-string Login::get_logged_username()
-{
-    return user.get_username();
-}
 User Login::get_user(){
     return user;
 }

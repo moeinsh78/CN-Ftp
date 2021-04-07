@@ -19,7 +19,9 @@ Server::Server()
 
 void Server::record_log(string message)
 {
-    logfile.open("server.log", std::ofstream::out | std::ofstream::app);
+    string file;
+    file = path + "/server.log";
+    logfile.open(file.c_str(), std::ofstream::out | std::ofstream::app);
     time_t now = time(0);
     logfile << message <<  " -- " << (char*) ctime(&now);
     logfile.close();

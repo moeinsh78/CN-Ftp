@@ -24,7 +24,9 @@ void CommandHandler::command_parser(string str)
 
 void CommandHandler::record_log(string message)
 {
-    logfile.open("server.log", std::ofstream::out | std::ofstream::app);
+    string file;
+    file = server_path + "/server.log";
+    logfile.open(file, std::ofstream::out | std::ofstream::app);
     time_t now = time(0);
     logfile << message <<  " -- " << (char*) ctime(&now);
     logfile.close();
@@ -47,6 +49,7 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
         {
             if(login.login(args[0])){
                 logged_in = true;
+                record_log("User " + login.get_user().get_username() + " logged in successfully");
                 throw string("230: User logged in, proceed. Logged out if appropriate.");
             }
         }
@@ -64,7 +67,7 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
             getline(infile, line);
             str += line;
             remove("temp.txt");
-            record_log("User " + login.get_logged_username() + " asked their current working directory");
+            record_log("User " + login.get_user().get_username() + " asked their current working directory");
             throw string(str);
         }
         else if (cmd == "mkd")
@@ -74,7 +77,7 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
             system(command.c_str());
             string str;
             str = "257: " + args[0] + " created.";
-            record_log("User " + login.get_logged_username() + " created " + string(args[0]) + " directory");
+            record_log("User " + login.get_user().get_username() + " created " + string(args[0]) + " directory");
             throw string(str);
         }
         else if (cmd == "dele")
@@ -87,7 +90,7 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
                 {
                     string str;
                     str = "250: " + args[1] + " deleted.";
-                    record_log("User " + login.get_logged_username() + " deleted " + string(args[1]) + " file");
+                    record_log("User " + login.get_user().get_username() + " deleted " + string(args[1]) + " file");
                     throw string(str);
                 }
             }
@@ -99,7 +102,7 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
                 {
                     string str;
                     str = "250: " + args[1] + " deleted.";
-                    record_log("User " + login.get_logged_username() + " deleted " + string(args[1]) + " directory");
+                    record_log("User " + login.get_user().get_username() + " deleted " + string(args[1]) + " directory");
                     throw string(str);
                 }
             }
@@ -123,7 +126,7 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
             }
             str += "\n226: List transfer done.";
             remove("temp.txt");
-            record_log("User " + login.get_logged_username() + " requested a list transfer on their working directory");
+            record_log("User " + login.get_user().get_username() + " requested a list transfer on their working directory");
             throw string(str);
             
         }
@@ -133,7 +136,7 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
             {
                 if(!chdir(server_path.c_str()))
                 {
-                    record_log("User " + login.get_logged_username() + " changed their working directory to " + server_path);
+                    record_log("User " + login.get_user().get_username() + " changed their working directory to " + server_path);
                     throw string("250: Successful change."); 
                 }
             }
@@ -145,7 +148,7 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
                         ifstream infile("temp.txt");
                         getline(infile, client_directory);
                         remove("temp.txt");
-                        record_log("User " + login.get_logged_username() + " changed their working directory to " + string(args[0]));
+                        record_log("User " + login.get_user().get_username() + " changed their working directory to " + string(args[0]));
                         throw string("250: Successful change.");
                     }    
             }
@@ -156,7 +159,7 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
             if (rename(args[0].c_str(), args[1].c_str()) != 0)
 		        throw string("500: Error");
 	        else {
-		        record_log("User " + login.get_logged_username() + " changed file name " + string(args[0]) + " to " + string(args[1]));
+		        record_log("User " + login.get_user().get_username() + " changed file name " + string(args[0]) + " to " + string(args[1]));
                 throw string("250: Successful change.");
             }
         }
@@ -169,7 +172,7 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
                 throw string("425: Can't open data connection");
             int file_fd = open(args[0].c_str(),O_RDONLY);
             sendfile(data_channel_fd,file_fd,NULL,file_size);
-            record_log("User " + login.get_logged_username() + " downloaded file " + string(args[0]));
+            record_log("User " + login.get_user().get_username() + " downloaded file " + string(args[0]));
             throw string("226: Successful Download.");
         }
         else if (cmd == "help")
@@ -191,6 +194,7 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
             if(login.quit())
             {
                 logged_in = false;
+                record_log("User " + login.get_user().get_username() + " logged out successfully");
                 throw string("221: Successful Quit.");
             }
         }

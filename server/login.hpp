@@ -14,8 +14,6 @@ public:
     void find_username(std::vector<User> users,std::string username);
     bool login(std::string pass);
     bool quit();
-    void record_log(std::string message);
-    std::string get_logged_username();
     User get_user();
 private:
     std::ofstream logfile;

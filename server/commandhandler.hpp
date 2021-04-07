@@ -9,8 +9,11 @@
 #include <unistd.h>
 #include <cstdio>
 #include <iostream>
-#include <sys/socket.h>
 #include <fcntl.h>
+#include <stdlib.h>
+#include <sys/sendfile.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include "user.hpp"
 #include "login.hpp"
