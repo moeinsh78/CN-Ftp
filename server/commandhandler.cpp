@@ -220,7 +220,7 @@ void CommandHandler::handle(std::vector<User> users, int data_channel_fd)
         }
         else
         {
-            
+            throw string(SYNTAX_ERROR);
         }
     }
     catch(string excep)
