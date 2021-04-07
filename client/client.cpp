@@ -12,8 +12,8 @@ void Client::read_config_file(std::string config_file_path)
     ifstream file(config_file_path);
     json j;
     file >> j;
-    command_channel_port = stoi(j["commandChannelPort"].get<string>());
-    data_channel_port = stoi(j["dataChannelPort"].get<string>());
+    command_channel_port = j["commandChannelPort"];
+    data_channel_port = j["dataChannelPort"];
 }
 void Client::start()
 {
